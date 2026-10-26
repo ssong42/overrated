@@ -18,9 +18,8 @@ export function Game() {
   const [name, setName] = useState("");
   const [room, setRoom] = useState<Room | null>(null);
   const [code, setCode] = useState("");
-  const [topic, setTopic] = useState("");
   const [mode, setMode] = useState<Mode>("casual");
-  const [rating, setRating] = useState(50);
+  const [rating, setRating] = useState(0);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -50,7 +49,7 @@ export function Game() {
   };
   const create = async (e: FormEvent) => {
     e.preventDefault(); setBusy(true); setError("");
-    try { setRoom(await request("/api/rooms", { name: name.trim(), playerId, topic: topic.trim(), mode })); }
+    try { setRoom(await request("/api/rooms", { name: name.trim(), playerId, mode })); }
     catch (e) { setError(e instanceof Error ? e.message : "Try again."); }
     finally { setBusy(false); }
   };
@@ -62,13 +61,13 @@ export function Game() {
   };
 
   if (!playerId) return <div className="loading">Loading the hot takes…</div>;
-  if (!room) return <Landing {...{ name, setName, code, setCode, topic, setTopic, mode, setMode, create, join, busy, error }} />;
+  if (!room) return <Landing {...{ name, setName, code, setCode, mode, setMode, create, join, busy, error }} />;
   return <RoomView room={room} playerId={playerId} rating={rating} setRating={setRating} action={action} busy={busy} error={error} exit={() => setRoom(null)} />;
 }
 
 function Landing(props: any) {
   return <section className="landing"><div className="brand"><p className="eyebrow">THE OPINION GAME</p><h1>OVER<span>/</span>UNDER</h1><p>How well do you know your friends’ terrible takes?</p></div><div className="home-grid">
-    <form className="panel" onSubmit={props.create}><h2>Start a room</h2><label>Your name<input maxLength={18} required value={props.name} onChange={(e: any) => props.setName(e.target.value)} placeholder="e.g. Stevie" /></label><label>First hot take<input maxLength={80} required value={props.topic} onChange={(e: any) => props.setTopic(e.target.value)} placeholder="e.g. Pineapple on pizza" /></label><div className="modes"><button type="button" className={props.mode === "casual" ? "selected" : ""} onClick={() => props.setMode("casual")}><b>Casual</b><small>Play forever</small></button><button type="button" className={props.mode === "competitive" ? "selected" : ""} onClick={() => props.setMode("competitive")}><b>Competitive</b><small>First to 10 cards</small></button></div><button className="primary" disabled={props.busy}>{props.busy ? "Making room…" : "Create room"}</button></form>
+    <form className="panel" onSubmit={props.create}><h2>Start a room</h2><label>Your name<input maxLength={18} required value={props.name} onChange={(e: any) => props.setName(e.target.value)} placeholder="e.g. Stevie" /></label><p className="topic-note">Each picker chooses one topic from four fresh options.</p><div className="modes"><button type="button" className={props.mode === "casual" ? "selected" : ""} onClick={() => props.setMode("casual")}><b>Casual</b><small>Play forever</small></button><button type="button" className={props.mode === "competitive" ? "selected" : ""} onClick={() => props.setMode("competitive")}><b>Competitive</b><small>First to 10 cards</small></button></div><button className="primary" disabled={props.busy}>{props.busy ? "Making room…" : "Create room"}</button></form>
     <form className="panel join" onSubmit={props.join}><h2>Join the party</h2><p>Got a room code? Jump in — up to four players.</p><label>Your name<input maxLength={18} required value={props.name} onChange={(e: any) => props.setName(e.target.value)} placeholder="Your name" /></label><label>Room code<input maxLength={5} required value={props.code} onChange={(e: any) => props.setCode(e.target.value.toUpperCase())} placeholder="ABCDE" /></label><button className="secondary" disabled={props.busy}>Join room</button></form>
   </div>{props.error && <p className="error">{props.error}</p>}<p className="rules">One player secretly rates the topic from <b>underrated</b> to <b>overrated</b>. Everyone else guesses closest. Closest guess earns the card.</p></section>;
 }
@@ -80,17 +79,19 @@ function RoomView({ room, playerId, rating, setRating, action, busy, error, exit
   const submitted = room.round?.submissions?.some((s: any) => s.playerId === playerId);
   const needed = room.players.length - (isChooser ? 1 : 0);
   const received = room.round?.submissions?.length || 0;
-  const title = room.status === "lobby" ? "Gather your crew" : room.status === "rating" ? (isChooser ? "Set your secret rating" : "Read the room") : room.status === "guessing" ? (isChooser ? "Keep your poker face" : "Make your guess") : room.status === "tie" ? "Tie-breaker: hype reel!" : room.status === "finished" ? "We have a legend" : "The verdict";
+  const title = room.status === "lobby" ? "Gather your crew" : room.status === "topic" ? (isChooser ? "Pick the hot take" : "A hot take is brewing") : room.status === "rating" ? (isChooser ? "Set your secret rating" : "Read the room") : room.status === "guessing" ? (isChooser ? "Keep your poker face" : "Make your guess") : room.status === "tie" ? "Tie-breaker: hype reel!" : room.status === "finished" ? "We have a legend" : "The verdict";
   const result = room.round?.result;
   return <section className="game"><header><div className="mini-brand">OVER<span>/</span>UNDER</div><div className="room-code">ROOM <b>{room.code}</b><button onClick={exit}>Leave</button></div></header><div className="game-head"><p className="eyebrow">{room.mode === "competitive" ? "RACE TO 10 CARDS" : "CASUAL MODE · NO FINISH LINE"}</p><h2>{title}</h2></div><div className="scores">{room.players.map((p: any) => <div className={p.id === chooser?.id ? "score chooser" : "score"} key={p.id}><span>{p.name}{p.id === playerId ? " (you)" : ""}</span><b>{p.cards}</b><small>cards{p.id === chooser?.id && room.status !== "lobby" ? " · picker" : ""}</small></div>)}</div>
   {room.status === "lobby" && <div className="stage"><p>{room.players.length}/4 players are in. {room.players.length < 2 ? "Invite at least one friend to begin." : "Ready for some wildly personal opinions?"}</p><p className="invite">Share code <b>{room.code}</b></p>{me?.id === room.hostId && <button className="primary" disabled={room.players.length < 2 || busy} onClick={() => action("start")}>Start game</button>}</div>}
+  {room.status === "topic" && <div className="stage">{isChooser ? <TopicPicker options={room.round.topicOptions} onPick={(topic: string) => action("topic", { topic })} busy={busy} /> : <Wait text={`${chooser.name} is choosing the next hot take…`} />}</div>}
   {room.status === "rating" && <div className="stage"><Topic topic={room.round.topic} />{isChooser ? <Rating rating={rating} setRating={setRating} label="How do YOU feel?" button="Lock in my take" onSubmit={() => action("rate", { rating })} busy={busy} /> : <Wait text={`${chooser.name} is deciding how wrong everyone else is…`} />}</div>}
   {room.status === "guessing" && <div className="stage"><Topic topic={room.round.topic} />{isChooser ? <Wait text={`Waiting for ${needed - received} guess${needed - received === 1 ? "" : "es"}…`} /> : submitted ? <Wait text="Guess locked. No take-backs!" /> : <Rating rating={rating} setRating={setRating} label={`Where will ${chooser.name} land?`} button="Lock my guess" onSubmit={() => action("guess", { rating })} busy={busy} />}</div>}
-  {room.status === "reveal" && <div className="stage"><Topic topic={room.round.topic} /><div className="reveal"><p>{chooser.name} rated it</p><strong>{room.round.chooserRating}</strong><p className="scale-label"><span>UNDER</span><span>OVER</span></p>{result?.winners?.length ? <><h3>{result.winners.length > 1 ? "Dead even!" : `${result.winners[0].name} wins the card!`}</h3><div className="guesses">{result.winners.map((p: any) => <b key={p.id}>{p.name}</b>)}</div>{result.winners.length > 1 ? <button className="primary" onClick={() => action("tiebreak")} disabled={busy}>Launch the hype reel</button> : <button className="primary" onClick={() => action("next")} disabled={busy}>Next topic</button>}</> : null}</div></div>}
+  {room.status === "reveal" && <div className="stage"><Topic topic={room.round.topic} /><div className="reveal"><p>{chooser.name} rated it</p><strong>{room.round.chooserRating && room.round.chooserRating > 0 ? "+" : ""}{room.round.chooserRating}</strong><p className="scale-label"><span>UNDERRATED · −5</span><span>OVERRATED · +5</span></p>{result?.winners?.length ? <><h3>{result.winners.length > 1 ? "Dead even!" : `${result.winners[0].name} wins the card!`}</h3><div className="guesses">{result.winners.map((p: any) => <b key={p.id}>{p.name}</b>)}</div>{result.winners.length > 1 ? <button className="primary" onClick={() => action("tiebreak")} disabled={busy}>Launch the hype reel</button> : <button className="primary" onClick={() => action("next")} disabled={busy}>Next topic</button>}</> : null}</div></div>}
   {room.status === "tie" && <div className="stage"><div className="tie"><div className="roulette">★</div><h3>The hype reel chose…</h3><strong>{result?.winners?.[0]?.name}</strong><p>Maximum vibes. Zero appeals.</p><button className="primary" onClick={() => action("next")} disabled={busy}>Next topic</button></div></div>}
   {room.status === "finished" && <div className="stage winner"><p>FIRST TO 10</p><h1>{room.winner?.name}</h1><h3>is officially the most in tune.</h3><button className="primary" onClick={() => action("restart")}>Play again</button></div>}{error && <p className="error">{error}</p>}</section>;
 }
 
-function Topic({ topic }: { topic: string }) { return <div className="topic"><p>THE TOPIC</p><h3>{topic}</h3></div>; }
+function Topic({ topic }: { topic?: string }) { return <div className="topic"><p>THE TOPIC</p><h3>{topic}</h3></div>; }
+function TopicPicker({ options, onPick, busy }: { options: string[]; onPick: (topic: string) => void; busy: boolean }) { return <div className="topic-picker"><p className="eyebrow">YOUR TURN TO PICK</p><h3>Choose the next hot take</h3><div>{options.map((option) => <button disabled={busy} onClick={() => onPick(option)} key={option}>{option}<span>→</span></button>)}</div></div>; }
 function Wait({ text }: { text: string }) { return <div className="wait"><i></i><i></i><i></i><p>{text}</p></div>; }
-function Rating({ rating, setRating, label, button, onSubmit, busy }: any) { return <div className="rating"><p>{label}</p><output>{rating}</output><input type="range" min="1" max="100" value={rating} onChange={(e) => setRating(Number(e.target.value))} style={{ "--value": `${rating}%` } as React.CSSProperties} /><div className="scale-label"><span>UNDER<br/><b>1</b></span><span>OVER<br/><b>100</b></span></div><button className="primary" onClick={onSubmit} disabled={busy}>{button}</button></div>; }
+function Rating({ rating, setRating, label, button, onSubmit, busy }: any) { return <div className="rating"><p>{label}</p><output>{rating > 0 ? "+" : ""}{rating}</output><input type="range" min="-5" max="5" value={rating} onChange={(e) => setRating(Number(e.target.value))} style={{ "--value": `${((rating + 5) / 10) * 100}%` } as React.CSSProperties} /><div className="scale-label"><span>UNDERRATED<br/><b>−5</b></span><span>OVERRATED<br/><b>+5</b></span></div><button className="primary" onClick={onSubmit} disabled={busy}>{button}</button></div>; }
