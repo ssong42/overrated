@@ -14,3 +14,7 @@ npm run dev
 Import this repository into Vercel; it detects Next.js automatically and uses `npm run build`.
 
 > The included room store is process memory, which makes the project immediately playable locally and in a single server process. Vercel Serverless Functions do not guarantee a shared, durable process, so use a shared store (such as Vercel KV/Redis) before public production deployment. Replace the `Map` in `lib/game.ts` with that store; the API surface is already isolated there.
+
+## Vercel Link
+
+https://overrated-eight.vercel.app/
