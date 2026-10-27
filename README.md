@@ -1,6 +1,6 @@
 # Over / Under
 
-A four-player social guessing game: the picker chooses one of two topic cards, secretly rates it from **−5 (underrated)** to **+5 (overrated)**, and the closest guess wins a card. Casual mode never ends; competitive mode crowns the first player to 10 cards. Exact ties are settled by the randomly selected **Hype Reel**.
+A four-player social guessing game: the picker gets a topic card (with one optional skip), secretly rates it from **−5 (underrated)** to **+5 (overrated)**, and the closest guess wins a card. Casual mode never ends; competitive mode crowns the first player to 10 cards. Exact ties are settled by the randomly selected **Hype Reel**.
 
 ## Run locally
 
