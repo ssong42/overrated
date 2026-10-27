@@ -52,7 +52,7 @@ const TOPICS = [
 const rooms = new Map<string, Room>();
 const code = () => Math.random().toString(36).slice(2, 7).toUpperCase();
 const clone = (room: Room) => JSON.parse(JSON.stringify(room)) as Room;
-const topicOptions = () => [...TOPICS].sort(() => Math.random() - .5).slice(0, 4);
+const topicOptions = () => [...TOPICS].sort(() => Math.random() - .5).slice(0, 2);
 
 export function createRoom(name: string, playerId: string, mode: Mode) {
   if (!name) throw new Error("Add your name.");
