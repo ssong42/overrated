@@ -5,7 +5,50 @@ export type Submission = { playerId: string; rating: number };
 export type Round = { topic?: string; topicOptions: string[]; chooserRating?: number; submissions: Submission[]; result?: { winners: Player[] } };
 export type Room = { code: string; hostId: string; mode: Mode; players: Player[]; status: Status; chooserIndex: number; round?: Round; winner?: Player; updatedAt: number };
 
-const TOPICS = ["Crocs", "Brunch", "Taylor Swift", "Pineapple on pizza", "Camping", "Reality TV", "Voice notes", "Cold plunges", "Airport beer", "Group chats", "Autotune", "Thrifting"];
+const TOPICS = [
+  "Crocs", "Brunch", "Pineapple on pizza", "Camping", "Reality TV", "Voice notes", "Cold plunges", "Airport beer", "Group chats", "Autotune", "Thrifting", "Taylor Swift",
+  "Breakfast for dinner", "Board games", "Public proposals", "Spicy food", "Socks with sandals", "Singing in the car", "Roller coasters", "True crime podcasts", "Buying books", "Reading books", "Dog costumes", "Cat videos",
+  "Long showers", "Short naps", "Early mornings", "Staying up late", "Rainy days", "Snow days", "Beach vacations", "City breaks", "Road trips", "Cruises", "All-inclusive resorts", "Hostels",
+  "Window seats", "Aisle seats", "Flying first class", "Turbulence", "Airport security", "Checking a bag", "Packing cubes", "Souvenir shops", "Hotel breakfast", "Room service", "Mini bars", "Travel itineraries",
+  "Coffee", "Decaf coffee", "Matcha", "Bubble tea", "Energy drinks", "Sparkling water", "Tap water", "Orange juice", "Chocolate milk", "Iced coffee", "Fancy ice cubes", "Drinking straws",
+  "Avocado toast", "Sushi", "Tacos", "Burgers", "Hot dogs", "French fries", "Onion rings", "Chicken nuggets", "Salad", "Soup", "Sandwiches", "Charcuterie boards",
+  "Ketchup", "Ranch dressing", "Mayonnaise", "Hot sauce", "Pickles", "Olives", "Mushrooms", "Raisins", "Candy corn", "Mint chocolate", "Black licorice", "Leftover pizza",
+  "Meal prepping", "Cooking shows", "Food delivery apps", "Grocery shopping", "Farmers markets", "Buffets", "Potlucks", "Fancy restaurants", "Fast food", "Dessert first", "Birthday cake", "Cupcakes",
+  "Karaoke", "Dancing at weddings", "Wedding speeches", "Surprise parties", "Theme parties", "Costume parties", "Escape rooms", "Trivia night", "Mini golf", "Bowling", "Laser tag", "Arcades",
+  "Movie theaters", "Popcorn at the movies", "Movie spoilers", "Rewatching shows", "Binge watching", "Subtitles", "Dubbed movies", "Movie musicals", "Rom-coms", "Horror movies", "Superhero movies", "Documentaries",
+  "Live concerts", "Music festivals", "Vinyl records", "Playlists", "Album covers", "One-hit wonders", "Cover songs", "Musical theater", "Stand-up comedy", "Magic shows", "Museums", "Art galleries",
+  "Video games", "Mobile games", "Puzzle games", "Crosswords", "Word games", "Jigsaw puzzles", "Collecting cards", "LEGO sets", "Action figures", "Stuffed animals", "Candles", "Houseplants",
+  "Taking photos", "Printing photos", "Photo booths", "Disposable cameras", "Selfies", "Family group chats", "Birthday posts", "Social media stories", "Dating apps", "Online shopping", "Unboxing videos", "Influencers",
+  "Paper maps", "Handwritten notes", "Cursive", "Journaling", "To-do lists", "New Year resolutions", "Vision boards", "Personality quizzes", "Horoscopes", "Lucky charms", "Ghost stories", "Conspiracy theories",
+  "Tattoos", "Piercings", "Dyeing your hair", "Bangs", "Matching outfits", "Formalwear", "Halloween costumes", "Secondhand clothes", "Sneaker collecting", "Wearing hats", "Sunglasses indoors", "Fanny packs",
+  "Cleaning", "Doing laundry", "Making the bed", "Washing dishes", "Vacuuming", "Organizing drawers", "Spring cleaning", "Building furniture", "DIY projects", "Gardening", "Mowing the lawn", "Raking leaves",
+  "Gym workouts", "Yoga", "Running", "Hiking", "Biking", "Team sports", "Pickleball", "Fantasy sports", "Watching sports", "Sports bars", "Tailgating", "Trophy ceremonies",
+  "School uniforms", "Homework", "Group projects", "School dances", "Graduation ceremonies", "Office parties", "Working from home", "Commutes", "Standing desks", "Lunch breaks", "Casual Fridays", "Retirement parties",
+  "Reading the news", "Weather apps", "Daylight saving time", "Leap day", "Waiting in line", "Small talk", "Being early", "Being late", "HaggGet rling", "Cash", "Gift cards", "Loyalty points",
+  "Paper receipts", "Birthday cards", "Thank-you notes", "Giving gifts", "Regifting", "Secret Santa", "Practical gifts", "Flowers", "Balloons", "Fireworks", "Parades", "Fairs",
+  "Zoos", "Aquariums", "Amusement parks", "Water parks", "Public pools", "Libraries", "Bookstores", "Malls", "IKEA", "Garage sales", "Flea markets", "Antique stores",
+  "Pet birds", "Goldfish", "Reptiles", "Rescuing a pet", "Pet names", "Dog parks", "Dog beaches", "Training a puppy", "Cats on counters", "Pet sitting", "Animal cafés", "Wildlife documentaries",
+  "Sunsets", "Sunrises", "Thunderstorms", "Foggy mornings", "Humid weather", "Windy days", "Heat waves", "Weather forecasts", "Umbrellas", "Rain boots", "Sunscreen", "Bug spray",
+  "Picnics", "Barbecues", "Bonfires", "Camping in a tent", "Sleeping bags", "Hammocks", "Stargazing", "Fishing", "Kayaking", "Canoeing", "Paddle boarding", "Rock climbing",
+  "Skiing", "Snowboarding", "Ice skating", "Sledding", "Building snowmen", "Snowball fights", "Hot tubs", "Saunas", "Spa days", "Massages", "Face masks", "Manicures",
+  "Flip phones", "Landlines", "Voicemail", "Texting", "Video calls", "Reply-all emails", "Email signatures", "Password managers", "Smart watches", "Smart speakers", "Robot vacuums", "Electric cars",
+  "Streaming subscriptions", "Cable TV", "Podcasts", "Audiobooks", "Radio stations", "Morning shows", "Late-night TV", "Game shows", "Talent competitions", "Cooking competitions", "Award shows", "Red carpets",
+  "Animated movies", "Stop-motion movies", "Silent films", "Foreign films", "Movie remakes", "Sequels", "Prequels", "Movie trailers", "Post-credit scenes", "Director's cuts", "Opening credits", "Movie soundtracks",
+  "Comic books", "Manga", "Graphic novels", "Fan fiction", "Book clubs", "Poetry", "Memoirs", "Cookbooks", "Coffee-table books", "E-readers", "Library cards", "Book adaptations",
+  "Concert merch", "Band T-shirts", "Learning an instrument", "Guitar solos", "Drum solos", "Music videos", "Dance challenges", "Singing in public", "Listening to music while working", "Classical music", "Jazz", "Country music",
+  "Painting", "Drawing", "Pottery", "Knitting", "Crocheting", "Sewing", "Embroidery", "Scrapbooking", "Calligraphy", "Origami", "Adult coloring books", "Craft fairs",
+  "Baking bread", "Making pasta", "Grilling", "Air fryers", "Slow cookers", "Microwaves", "Kitchen gadgets", "Recipe blogs", "Cooking from scratch", "Cooking with friends", "Breakfast in bed", "Midnight snacks",
+  "Bagels", "Donuts", "Pancakes", "Waffles", "Cereal", "Oatmeal", "Peanut butter", "Jam", "Maple syrup", "Honey", "Ice cream", "Frozen yogurt",
+  "Milkshakes", "Smoothies", "Mocktails", "Cocktails", "Wine tasting", "Craft beer", "Champagne", "Tea parties", "Afternoon tea", "Brunch cocktails", "Happy hour", "Drinking games",
+  "Beach reads", "Pool floats", "Sand castles", "Seashells", "Lighthouses", "National parks", "Tourist traps", "Guided tours", "Hop-on hop-off buses", "Travel postcards", "Travel vlogs", "Language apps",
+  "Learning a language", "Accents", "Puns", "Dad jokes", "Knock-knock jokes", "Pranks", "April Fools' Day", "Inside jokes", "Nicknames", "Icebreakers", "Fun facts", "Would-you-rather questions",
+  "Reality competitions", "Dating shows", "Home renovation shows", "Nature shows", "Crime dramas", "Sitcoms", "Soap operas", "Cartoons", "Anime", "Saturday morning cartoons", "TV theme songs", "Cliffhangers",
+  "Window shopping", "Black Friday", "Impulse buying", "Coupons", "Store brands", "Luxury brands", "Subscription boxes", "Vending machines", "Claw machines", "Lottery tickets", "Scratch cards", "Coin collections",
+  "Public speaking", "Debates", "Job interviews", "First impressions", "Networking events", "Name tags", "Office snacks", "Team-building exercises", "Business casual", "Uniforms at work", "Side hustles", "Taking sick days",
+  "Being the host", "Being a guest", "Splitting the bill", "Tipping", "Housewarming parties", "Dinner parties", "Meeting neighbors", "Borrowing things", "Returning shopping carts", "Holding doors open", "Elevator small talk", "Talking to strangers",
+  "Breakfast buffets", "Hotel lobbies", "Rooftop bars", "Food courts", "Museum gift shops", "Aquarium tunnels", "Observation decks", "Ferris wheels", "Carousels", "Haunted houses", "Corn mazes", "Pumpkin patches",
+  "Apple picking", "Flower gardens", "Botanical gardens", "Cherry blossoms", "Houseboats", "Tree houses", "Cabins", "Tiny houses", "Open-concept homes", "Fireplaces", "Porches", "Window boxes"
+];
 const rooms = new Map<string, Room>();
 const code = () => Math.random().toString(36).slice(2, 7).toUpperCase();
 const clone = (room: Room) => JSON.parse(JSON.stringify(room)) as Room;
