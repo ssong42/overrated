@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import type { Mode, Room } from "@/lib/game";
+import type { Edition, Mode, Room } from "@/lib/game";
 
 const identityKey = "over-under-player";
 const makeId = () => Math.random().toString(36).slice(2, 10);
@@ -13,7 +13,7 @@ async function request(path: string, body?: object) {
   return data;
 }
 
-export function Game() {
+export function Game({ edition = "classic" }: { edition?: Edition }) {
   const [playerId, setPlayerId] = useState("");
   const [name, setName] = useState("");
   const [room, setRoom] = useState<Room | null>(null);
@@ -49,7 +49,7 @@ export function Game() {
   };
   const create = async (e: FormEvent) => {
     e.preventDefault(); setBusy(true); setError("");
-    try { setRoom(await request("/api/rooms", { name: name.trim(), playerId, mode })); }
+    try { setRoom(await request("/api/rooms", { name: name.trim(), playerId, mode, edition })); }
     catch (e) { setError(e instanceof Error ? e.message : "Try again."); }
     finally { setBusy(false); }
   };
@@ -60,13 +60,14 @@ export function Game() {
     finally { setBusy(false); }
   };
 
-  if (!playerId) return <div className="loading">Loading the hot takes…</div>;
-  if (!room) return <Landing {...{ name, setName, code, setCode, mode, setMode, create, join, busy, error }} />;
-  return <RoomView room={room} playerId={playerId} rating={rating} setRating={setRating} action={action} busy={busy} error={error} exit={() => setRoom(null)} />;
+  const holiday = room ? room.edition === "holiday" : edition === "holiday";
+  return <div className={holiday ? "edition-holiday" : "edition-classic"}>
+    {!playerId ? <div className="loading">Loading the hot takes…</div> : !room ? <Landing {...{ name, setName, code, setCode, mode, setMode, create, join, busy, error, holiday }} /> : <RoomView room={room} playerId={playerId} rating={rating} setRating={setRating} action={action} busy={busy} error={error} exit={() => setRoom(null)} />}
+  </div>;
 }
 
 function Landing(props: any) {
-  return <section className="landing"><div className="brand"><p className="eyebrow">THE OPINION GAME</p><h1>OVER<span>/</span>UNDER</h1><p>How well do you know your friends’ terrible takes?</p></div><div className="home-grid">
+  return <section className="landing"><div className="brand"><p className="eyebrow">{props.holiday ? "✦ THE HOLIDAY OPINION GAME ✦" : "THE OPINION GAME"}</p><h1>OVER<span>/</span>UNDER</h1>{props.holiday && <div className="holiday-badge">HOLIDAY EDITION</div>}<p>{props.holiday ? "Festive food. Family traditions. Extremely strong opinions." : "How well do you know your friends’ terrible takes?"}</p><a className="edition-link" href={props.holiday ? "/" : "/holiday"}>{props.holiday ? "← Play the classic edition" : "✦ Play the holiday edition →"}</a></div><div className="home-grid">
     <form className="panel" onSubmit={props.create}><h2>Start a room</h2><label>Your name<input maxLength={18} required value={props.name} onChange={(e: any) => props.setName(e.target.value)} placeholder="Enter your name" /></label><div className="modes"><button type="button" className={props.mode === "casual" ? "selected" : ""} onClick={() => props.setMode("casual")}><b>Casual</b><small>Play forever</small></button><button type="button" className={props.mode === "competitive" ? "selected" : ""} onClick={() => props.setMode("competitive")}><b>Competitive</b><small>First to 10 cards</small></button></div><button className="primary" disabled={props.busy}>{props.busy ? "Making room…" : "Create room"}</button></form>
     <form className="panel join" onSubmit={props.join}><h2>Join the party</h2><p>Got a room code? Jump in — up to four players.</p><label>Your name<input maxLength={18} required value={props.name} onChange={(e: any) => props.setName(e.target.value)} placeholder="Your name" /></label><label>Room code<input maxLength={5} required value={props.code} onChange={(e: any) => props.setCode(e.target.value.toUpperCase())} placeholder="ABCDE" /></label><button className="secondary" disabled={props.busy}>Join room</button></form>
   </div>{props.error && <p className="error">{props.error}</p>}<p className="rules">One player secretly rates the topic from <b>underrated (11)</b> on the left to <b>overrated (1)</b> on the right. Everyone else guesses closest. Closest guess earns the card.</p></section>;
@@ -91,7 +92,7 @@ function RoomView({ room, playerId, rating, setRating, action, busy, error, exit
     const timer = window.setTimeout(() => action("tiebreak"), 5000);
     return () => window.clearTimeout(timer);
   }, [room.code, room.status, result?.winners?.length]);
-  return <section className="game"><header><div className="mini-brand">OVER<span>/</span>UNDER</div><div className="room-code">ROOM <b>{room.code}</b><button onClick={exit}>Leave</button></div></header><div className="game-head"><p className="eyebrow">{room.mode === "competitive" ? "RACE TO 10 CARDS" : "CASUAL MODE · NO FINISH LINE"}</p><h2>{title}</h2></div><div className="scores">{room.players.map((p: any) => <div className={p.id === chooser?.id ? "score chooser" : "score"} key={p.id}><button className="player-name" onClick={() => setShowCardsFor(p.id)}>{p.name}{p.id === playerId ? " (you)" : ""}</button><b>{p.cards}</b><small>cards{p.id === chooser?.id && room.status !== "lobby" ? " · picker" : ""}</small></div>)}</div>
+  return <section className="game"><header><div className="mini-brand">OVER<span>/</span>UNDER{room.edition === "holiday" && <small className="mini-edition"> ✦ HOLIDAY</small>}</div><div className="room-code">ROOM <b>{room.code}</b><button onClick={exit}>Leave</button></div></header><div className="game-head"><p className="eyebrow">{room.mode === "competitive" ? "RACE TO 10 CARDS" : "CASUAL MODE · NO FINISH LINE"}</p><h2>{title}</h2></div><div className="scores">{room.players.map((p: any) => <div className={p.id === chooser?.id ? "score chooser" : "score"} key={p.id}><button className="player-name" onClick={() => setShowCardsFor(p.id)}>{p.name}{p.id === playerId ? " (you)" : ""}</button><b>{p.cards}</b><small>cards{p.id === chooser?.id && room.status !== "lobby" ? " · picker" : ""}</small></div>)}</div>
   {room.status === "lobby" && <div className="stage"><p>{room.players.length}/4 players are in. {room.players.length < 2 ? "Invite at least one friend to begin." : "Ready for some wildly personal opinions?"}</p><p className="invite">Share code <b>{room.code}</b></p>{me?.id === room.hostId && <button className="primary" disabled={room.players.length < 2 || busy} onClick={() => action("start")}>Start game</button>}</div>}
   {room.status === "topic" && <div className="stage">{isChooser ? <TopicPicker topic={room.round.topic} skipUsed={room.round.skipUsed} onPick={() => action("topic")} onSkip={() => action("skip")} busy={busy} /> : <Wait text={`${chooser.name} is choosing the next topic…`} />}</div>}
   {room.status === "rating" && <div className="stage"><Topic topic={room.round.topic} />{isChooser ? <Rating rating={rating} setRating={setRating} label="How do YOU feel?" button="Lock in my take" onSubmit={() => action("rate", { rating })} busy={busy} /> : <Wait text={`${chooser.name} is deciding how wrong everyone else is…`} />}</div>}

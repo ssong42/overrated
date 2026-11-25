@@ -1,11 +1,12 @@
 export type Mode = "casual" | "competitive";
+export type Edition = "classic" | "holiday";
 export type Status = "lobby" | "topic" | "rating" | "guessing" | "reveal" | "tieTopic" | "tieRating" | "tieGuessing" | "tie" | "finished";
 export type Player = { id: string; name: string; cards: number; cardTopics: string[] };
 export type Submission = { playerId: string; rating: number };
 export type TieBreakResult = { topic: string; chooserId: string; chooserRating: number; submissions: Submission[] };
 export type TieBreak = { contenders: string[]; topic: string; skipUsed: boolean; chooserRating?: number; submissions: Submission[]; results: TieBreakResult[] };
 export type Round = { topic: string; skipUsed: boolean; chooserRating?: number; submissions: Submission[]; result?: { winners: Player[] }; tieBreak?: TieBreak };
-export type Room = { code: string; hostId: string; mode: Mode; players: Player[]; status: Status; chooserIndex: number; usedTopics: string[]; round?: Round; winner?: Player; updatedAt: number };
+export type Room = { code: string; hostId: string; mode: Mode; edition?: Edition; players: Player[]; status: Status; chooserIndex: number; usedTopics: string[]; round?: Round; winner?: Player; updatedAt: number };
 
 const BASE_TOPICS = [
   "Crocs", "Brunch", "Camping", "Reality TV", "Voice notes", "Cold plunges",
@@ -181,9 +182,14 @@ const EXTRA_TOPICS = [
 ];
 
 const TOPICS = [...BASE_TOPICS, ...EXTRA_TOPICS];
+const HOLIDAY_TOPICS = [
+  "Eggnog", "Fruitcake", "Gingerbread houses", "Candy canes", "Hot chocolate", "Peppermint bark", "Sugar cookies", "Cookie exchanges", "Holiday baking", "Pumpkin pie", "Pecan pie", "Sweet potato casserole", "Marshmallows on sweet potatoes", "Cranberry sauce", "Stuffing", "Mashed potatoes", "Green bean casserole", "Holiday ham", "Roast turkey", "Leftover sandwiches", "Latkes", "Applesauce on latkes", "Sufganiyot", "Matzo ball soup", "Brisket", "Babka", "Panettone", "Yule logs", "Christmas pudding", "Mince pies", "Tamales", "Coquito", "Ponche", "Black-eyed peas", "Collard greens", "Sparkling cider", "Mulled wine", "Mulled cider", "Holiday leftovers", "Potluck dinners", "Festive cocktails", "Holiday charcuterie", "Chocolate coins", "Advent calendar chocolate", "Peppermint mochas", "Holiday coffee flavors", "Roasted chestnuts", "Popcorn tins", "Holiday candy", "Homemade fudge",
+  "Holiday movies", "Holiday music in November", "All I Want for Christmas Is You", "Holiday playlists", "Holiday movie marathons", "Ugly sweaters", "Matching pajamas", "Holiday cards", "Family newsletters", "Wrapping presents", "Gift bags", "Gift wrapping stations", "Secret Santa", "White elephant gifts", "Regifting", "Homemade gifts", "Gift cards", "Stocking stuffers", "Opening presents early", "Surprise gifts", "Practical gifts", "Giving experiences", "Holiday shopping", "Black Friday", "Last-minute shopping", "Holiday markets", "Mall Santas", "Family photos", "Matching outfits", "Holiday parties", "Office holiday parties", "Hosting dinner", "Holiday travel", "Airport reunions", "Visiting relatives", "Video calls with family", "Holiday traditions", "Making new traditions", "New Year's resolutions", "Midnight countdowns", "New Year's Eve parties", "New Year's Day brunch", "Watching the ball drop", "Fireworks", "First-day hikes",
+  "Christmas trees", "Artificial trees", "Real trees", "Tree ornaments", "Tinsel", "Outdoor lights", "Inflatable decorations", "Light displays", "Holiday wreaths", "Mistletoe", "Poinsettias", "Snow globes", "Scented candles", "Holiday scents", "Advent calendars", "Elf on the Shelf", "Christmas stockings", "Hanukkah candles", "Dreidels", "Kwanzaa celebrations", "Ice skating", "Sledding", "Snowball fights", "Building snowmen", "Snow days", "Winter walks", "Cozy blankets", "Holiday puzzles", "Board games with family", "Singing carols", "Holiday parades", "Winter festivals", "Holiday decorations before Thanksgiving", "Taking decorations down", "The holiday season", "A quiet holiday at home", "Festive pet outfits", "Holiday crafts", "Paper snowflakes", "Gingerbread cookies", "Reindeer decorations", "The Nutcracker", "Holiday volunteering", "Year-end reflections", "Holiday pajamas all day", "Snow on the holidays", "Holiday sweaters for pets", "Holiday trivia", "Festive table settings", "Holiday breakfast", "Decorating cookies", "Holiday lights on houses", "Holiday leftovers for breakfast"
+];
 const clone = (room: Room) => JSON.parse(JSON.stringify(room)) as Room;
 function nextUnusedTopic(room: Room) {
-  const choices = TOPICS.filter((topic) => !room.usedTopics.includes(topic));
+  const choices = (room.edition === "holiday" ? HOLIDAY_TOPICS : TOPICS).filter((topic) => !room.usedTopics.includes(topic));
   if (choices.length === 0) throw new Error("There are no unused topics left in this game.");
   const topic = choices[Math.floor(Math.random() * choices.length)];
   room.usedTopics.push(topic);
@@ -191,9 +197,9 @@ function nextUnusedTopic(room: Room) {
 }
 const newTopicRound = (topic: string): Round => ({ topic, skipUsed: false, submissions: [] });
 
-export function buildRoom(roomCode: string, name: string, playerId: string, mode: Mode) {
+export function buildRoom(roomCode: string, name: string, playerId: string, mode: Mode, edition: Edition = "classic") {
   if (!name) throw new Error("Add your name.");
-  const room: Room = { code: roomCode, hostId: playerId, mode, players: [{ id: playerId, name, cards: 0, cardTopics: [] }], status: "lobby", chooserIndex: 0, usedTopics: [], updatedAt: Date.now() };
+  const room: Room = { code: roomCode, hostId: playerId, mode, edition, players: [{ id: playerId, name, cards: 0, cardTopics: [] }], status: "lobby", chooserIndex: 0, usedTopics: [], updatedAt: Date.now() };
   room.round = newTopicRound(nextUnusedTopic(room));
   return room;
 }

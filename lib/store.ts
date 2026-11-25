@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto";
 import sql from "mssql";
 import { DefaultAzureCredential } from "@azure/identity";
-import { applyAction, buildRoom, type Mode, type Room } from "./game";
+import { applyAction, buildRoom, type Edition, type Mode, type Room } from "./game";
 
 const credential = new DefaultAzureCredential();
 const memory = new Map<string, Room>();
@@ -36,10 +36,10 @@ function useMemory() {
   return true;
 }
 
-export async function createRoom(name: string, playerId: string, mode: Mode): Promise<Room> {
+export async function createRoom(name: string, playerId: string, mode: Mode, edition: Edition = "classic"): Promise<Room> {
   const local = useMemory();
   for (let attempt = 0; attempt < 10; attempt++) {
-    const room = buildRoom(code(), name, playerId, mode);
+    const room = buildRoom(code(), name, playerId, mode, edition);
     if (local) {
       if (memory.has(room.code)) continue;
       memory.set(room.code, clone(room));
