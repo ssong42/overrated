@@ -56,3 +56,43 @@ button,input { font:inherit; } button { cursor:pointer; } button:disabled { curs
 .edition-holiday .topic-picker .topic-card { background:#fcf3dd; }
 .edition-holiday .won-card:nth-child(even) { background:#dceee0; }
 .mini-edition { color:var(--purple); font:700 10px "DM Mono",monospace; letter-spacing:.04em; }
+
+/* An opinion dashboard rather than a physical card-table aesthetic. */
+:root { --ink:#e8effa; --cream:#101b30; --orange:#8fd8e8; --yellow:#a5edce; --purple:#a9bdf9; --line:rgba(190,208,236,.22); }
+body { background:#101b30; }
+.edition-classic,.edition-holiday { min-height:100vh; background:radial-gradient(ellipse at 50% 0%,#273d61 0%,#101b30 60%); }
+.brand h1 { font-weight:500; letter-spacing:-.06em; }
+.brand>p,.rules,.panel>p,.topic-picker>p:last-child,.cards-count,.empty-cards { color:#b9c8de; }
+.panel,.stage,.score,.guess-results,.cards-dialog { border:1px solid var(--line); border-radius:20px; background:#1a2942; box-shadow:0 18px 48px rgba(0,0,0,.16); }
+.panel input { color:var(--ink); border-bottom:1px solid #71829c; }
+.panel input::placeholder { color:#a2b1c7; }
+.modes button { border:1px solid var(--line); background:#233652; color:var(--ink); border-radius:12px; }
+.modes button.selected { border-color:#a5edce; background:#264e50; box-shadow:none; }
+.modes small { color:#c5d4e5; }
+.primary,.secondary { border:0; border-radius:999px; box-shadow:none; background:#a5edce; color:#102e33; }
+.secondary { background:#c3d5ff; color:#1a2942; }
+.primary:hover,.secondary:hover { transform:none; box-shadow:0 0 0 4px rgba(165,237,206,.2); }
+.game header { border-bottom:1px solid var(--line); }
+.room-code button,.score small { color:#b9c8de; }
+.score.chooser { border-color:#a5edce; background:#264e50; }
+.rating input { border:0; background:linear-gradient(90deg,#80d7c0,#b7c9ef 50%,#ebac9f); }
+.rating input::-moz-range-track { border:0; background:linear-gradient(90deg,#80d7c0,#b7c9ef 50%,#ebac9f); }
+.rating input { background:linear-gradient(90deg,#ebac9f,#b7c9ef 50%,#80d7c0); }
+.rating input::-moz-range-track { background:linear-gradient(90deg,#ebac9f,#b7c9ef 50%,#80d7c0); }
+.rating output.guess-over,.reveal strong.guess-over { color:#ffb7a8; }
+.rating output.guess-under,.reveal strong.guess-under { color:#a5edce; }
+.rating output.guess-neutral,.reveal strong.guess-neutral { color:#d4def0; }
+.guess-results li { background:#233652; }
+.guess-results li span small { color:#b9c8de; }
+.topic-picker .topic-card { border:1px solid #7188a8; border-radius:16px; background:#233652; color:var(--ink); box-shadow:none; }
+.topic-picker .topic-card:hover { background:#304969; transform:none; box-shadow:none; }
+.topic-picker .skip { color:#c5d4e5; }
+.won-card,.won-card:nth-child(even) { border:1px solid #7188a8; border-radius:16px; background:#233652; box-shadow:none; transform:none; }
+.won-card:nth-child(even) { background:#26454f; }
+.cards-backdrop { background:rgba(5,12,24,.8); }
+.edition-holiday { --ink:#edf8f1; --cream:#122c2c; --orange:#a8e3d4; --yellow:#e3d6a8; --purple:#b8d9c3; --line:rgba(191,223,205,.24); background:radial-gradient(ellipse at 50% 0%,#31514a 0%,#122c2c 60%); }
+.edition-holiday .panel,.edition-holiday .stage,.edition-holiday .score,.edition-holiday .guess-results { background:#1c3a38; }
+.edition-holiday .score.chooser,.edition-holiday .guess-results li { background:#2b5148; }
+.edition-holiday .topic-picker .topic-card,.edition-holiday .won-card:nth-child(even) { background:#294b47; }
+.holiday-badge { border:1px solid var(--line); border-radius:999px; background:#31564b; color:#eaf8ee; box-shadow:none; transform:none; }
+:focus-visible { outline:3px solid #a5edce; outline-offset:3px; }

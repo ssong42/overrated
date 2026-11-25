@@ -1,6 +1,6 @@
-# Over / Under
+# Take Signal
 
-A four-player social guessing game: the picker gets a topic card (with one optional skip), secretly rates it from **11 (underrated)** to **1 (overrated)**, and the closest guess wins a card. Casual mode never ends; competitive mode crowns the first player to 10 cards. Exact ties use a sudden-death round where only tied players guess a fresh topic.
+A four-player social guessing game: the picker gets a topic card (with one optional skip), secretly rates it from **5 over** through **0** to **5 under**, and the closest guess wins a card. Casual mode never ends; competitive mode crowns the first player to 10 cards. Exact ties use a sudden-death round where only tied players guess a fresh topic.
 
 Visit `/holiday` for the holiday edition, with its own festive look and a deck of seasonal food, celebrations, gifts, and traditions. A room keeps its edition even if a player joins from the other page; existing rooms remain classic.
 

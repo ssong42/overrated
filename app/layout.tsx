@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Over / Under",
+  title: "Take Signal",
   description: "A social guessing game for opinionated friends."
 };
 
