@@ -9,12 +9,14 @@ npm install
 npm run dev
 ```
 
-## Deploy to Vercel
+## Persistent rooms on Azure
 
-Import this repository into Vercel; it detects Next.js automatically and uses `npm run build`.
+The Azure-hosted app stores room snapshots in `dbo.OverratedRooms` in the existing `pont-game` Azure SQL database. Set `SQL_SERVER` and `SQL_DATABASE` in the App Service environment and grant its managed identity `SELECT`, `INSERT`, and `UPDATE` on that table. Run `deploy/schema.sql` as a database administrator to create the table. SQL updates use transactions to avoid losing simultaneous player actions.
 
-> The included room store is process memory, which makes the project immediately playable locally and in a single server process. Vercel Serverless Functions do not guarantee a shared, durable process, so use a shared store (such as Vercel KV/Redis) before public production deployment. Replace the `Map` in `lib/game.ts` with that store; the API surface is already isolated there.
+For local development without SQL configuration, rooms are kept in memory. Production requires SQL and reports an error if the database is unavailable; it does not silently use temporary storage. Azure SQL's free allowance is shared with Pont, so both games contribute to the same usage and either may be unavailable if the database auto-pauses after the free allowance is exhausted.
 
-## Vercel Link
+## Existing Vercel Link
 
 https://overrated-eight.vercel.app/
+
+This deployment is not configured for the Azure SQL database; it needs its own supported SQL credentials and environment configuration before using persistent rooms.

@@ -181,8 +181,6 @@ const EXTRA_TOPICS = [
 ];
 
 const TOPICS = [...BASE_TOPICS, ...EXTRA_TOPICS];
-const rooms = new Map<string, Room>();
-const code = () => Math.random().toString(36).slice(2, 7).toUpperCase();
 const clone = (room: Room) => JSON.parse(JSON.stringify(room)) as Room;
 function nextUnusedTopic(room: Room) {
   const choices = TOPICS.filter((topic) => !room.usedTopics.includes(topic));
@@ -193,14 +191,12 @@ function nextUnusedTopic(room: Room) {
 }
 const newTopicRound = (topic: string): Round => ({ topic, skipUsed: false, submissions: [] });
 
-export function createRoom(name: string, playerId: string, mode: Mode) {
+export function buildRoom(roomCode: string, name: string, playerId: string, mode: Mode) {
   if (!name) throw new Error("Add your name.");
-  let roomCode = code(); while (rooms.has(roomCode)) roomCode = code();
   const room: Room = { code: roomCode, hostId: playerId, mode, players: [{ id: playerId, name, cards: 0, cardTopics: [] }], status: "lobby", chooserIndex: 0, usedTopics: [], updatedAt: Date.now() };
   room.round = newTopicRound(nextUnusedTopic(room));
-  rooms.set(roomCode, room); return clone(room);
+  return room;
 }
-export function getRoom(roomCode: string) { const room = rooms.get(roomCode); if (!room) throw new Error("That room no longer exists."); return clone(room); }
 export function publicRoom(room: Room) {
   const view = clone(room);
   if (view.status === "guessing" && view.round) {
@@ -213,8 +209,7 @@ export function publicRoom(room: Room) {
   }
   return view;
 }
-export function changeRoom(roomCode: string, playerId: string, action: string, payload: { name?: string; rating?: number; topic?: string }) {
-  const room = rooms.get(roomCode); if (!room) throw new Error("That room no longer exists.");
+export function applyAction(room: Room, playerId: string, action: string, payload: { name?: string; rating?: number; topic?: string }) {
   const player = room.players.find((p) => p.id === playerId);
   if (action === "join") { if (player) return clone(room); if (!payload.name) throw new Error("Enter a name."); if (room.status !== "lobby") throw new Error("This game has already started."); if (room.players.length >= 4) throw new Error("This room is full — four opinion-havers max."); room.players.push({ id: playerId, name: payload.name.slice(0, 18), cards: 0, cardTopics: [] }); room.updatedAt = Date.now(); return clone(room); }
   if (!player) throw new Error("You are not in this room.");
